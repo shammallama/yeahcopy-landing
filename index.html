@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Yeah Copy — Built for the Roads You Drive</title>
+  <meta name="description" content="Live bridge status, road alerts and servo finder for Australian truck drivers. Built by a truckie for truckies." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #000000;
+      --dark: #0d0d0d;
+      --card: #111111;
+      --border: #222222;
+      --gold: #FFD700;
+      --green: #00C853;
+      --amber: #F39C12;
+      --red: #E74C3C;
+      --text: #ffffff;
+      --muted: #888888;
+      --subtle: #444444;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--black);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      font-family: 'Pacifico', cursive;
+      font-size: 22px;
+      color: var(--text);
+      text-shadow: 0 0 20px var(--gold), 0 0 40px rgba(255,215,0,0.3);
+      text-decoration: none;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: all 0.2s;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn-primary {
+      background: var(--text);
+      color: var(--black);
+    }
+
+    .btn-primary:hover {
+      background: #e0e0e0;
+      transform: translateY(-1px);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--subtle);
+      background: var(--card);
+    }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 120px 24px 80px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 50% 40%, rgba(255,215,0,0.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .road-line {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 4px;
+      height: 200px;
+      background: linear-gradient(to bottom, transparent, var(--gold));
+      opacity: 0.3;
+    }
+
+    .hero-eyebrow {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 20px;
+      opacity: 0.8;
+    }
+
+    .hero-logo {
+      font-family: 'Pacifico', cursive;
+      font-size: clamp(56px, 12vw, 96px);
+      color: var(--text);
+      text-shadow: 0 0 40px var(--gold), 0 0 80px rgba(255,215,0,0.2);
+      line-height: 1;
+      margin-bottom: 16px;
+    }
+
+    .hero-sub {
+      font-family: 'Pacifico', cursive;
+      font-size: clamp(16px, 3vw, 22px);
+      color: var(--text);
+      opacity: 0.7;
+      margin-bottom: 32px;
+    }
+
+    .hero-desc {
+      font-size: clamp(16px, 2.5vw, 20px);
+      color: var(--muted);
+      max-width: 520px;
+      margin: 0 auto 48px;
+      line-height: 1.7;
+    }
+
+    .hero-desc strong {
+      color: var(--text);
+    }
+
+    .download-buttons {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 64px;
+    }
+
+    .download-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 24px;
+      border-radius: 14px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 15px;
+      transition: all 0.2s;
+      border: 1.5px solid var(--border);
+      background: var(--card);
+      color: var(--text);
+    }
+
+    .download-btn:hover {
+      border-color: var(--gold);
+      box-shadow: 0 0 20px rgba(255,215,0,0.15);
+      transform: translateY(-2px);
+    }
+
+    .download-btn .icon {
+      font-size: 24px;
+    }
+
+    .download-btn .label {
+      display: flex;
+      flex-direction: column;
+      text-align: left;
+    }
+
+    .download-btn .label small {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--muted);
+    }
+
+    .stat-row {
+      display: flex;
+      gap: 40px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat-num {
+      font-size: 32px;
+      font-weight: 900;
+      color: var(--gold);
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* SECTION */
+    section {
+      padding: 100px 24px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--green);
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-size: clamp(28px, 5vw, 44px);
+      font-weight: 900;
+      line-height: 1.15;
+      margin-bottom: 16px;
+    }
+
+    .section-desc {
+      font-size: 17px;
+      color: var(--muted);
+      max-width: 560px;
+      line-height: 1.7;
+      margin-bottom: 56px;
+    }
+
+    /* FEATURE GRID */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 16px;
+    }
+
+    .feature-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .feature-card:hover {
+      border-color: var(--subtle);
+    }
+
+    .feature-card.hot { border-left: 3px solid var(--green); }
+    .feature-card.warm { border-left: 3px solid var(--amber); }
+    .feature-card.cool { border-left: 3px solid var(--red); }
+    .feature-card.gold { border-left: 3px solid var(--gold); }
+
+    .feature-emoji {
+      font-size: 32px;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .feature-title {
+      font-size: 17px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    .feature-desc {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* BRIDGE STATUS DEMO */
+    .bridge-demo {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 32px;
+      margin-bottom: 56px;
+    }
+
+    .bridge-demo-title {
+      font-size: 13px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 20px;
+    }
+
+    .bridge-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .bridge-row:last-child { border-bottom: none; }
+
+    .bridge-name {
+      font-weight: 700;
+      font-size: 15px;
+    }
+
+    .bridge-sub {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 800;
+      border: 1px solid;
+    }
+
+    .pill-hot { color: var(--green); border-color: var(--green); background: rgba(0,200,83,0.08); }
+    .pill-working { color: var(--amber); border-color: var(--amber); background: rgba(243,156,18,0.08); }
+    .pill-cold { color: var(--red); border-color: var(--red); background: rgba(231,76,60,0.08); }
+    .pill-unknown { color: var(--subtle); border-color: var(--subtle); background: transparent; }
+
+    /* QUOTE */
+    .quote-section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 48px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .quote-section::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(255,215,0,0.05) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .quote-text {
+      font-size: clamp(20px, 3.5vw, 28px);
+      font-weight: 800;
+      line-height: 1.4;
+      margin-bottom: 24px;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .quote-attr {
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .quote-attr strong {
+      color: var(--gold);
+    }
+
+    /* MISSUS */
+    .missus-section {
+      background: linear-gradient(135deg, #1a0a1a 0%, #0d0d0d 100%);
+      border: 1px solid #2a1a2a;
+      border-radius: 20px;
+      padding: 48px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: center;
+    }
+
+    .missus-chat {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .chat-bubble {
+      padding: 14px 18px;
+      border-radius: 14px;
+      font-size: 14px;
+      line-height: 1.5;
+      max-width: 85%;
+    }
+
+    .chat-user {
+      background: #1e1e1e;
+      border: 1px solid var(--border);
+      align-self: flex-end;
+      color: var(--text);
+    }
+
+    .chat-missus {
+      background: #1a0a1a;
+      border: 1px solid #3a1a3a;
+      align-self: flex-start;
+      color: #e0b0e0;
+    }
+
+    .chat-missus-name {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    /* CTA */
+    .cta-section {
+      text-align: center;
+      padding: 100px 24px;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .cta-logo {
+      font-family: 'Pacifico', cursive;
+      font-size: clamp(40px, 8vw, 64px);
+      color: var(--text);
+      text-shadow: 0 0 30px var(--gold), 0 0 60px rgba(255,215,0,0.2);
+      margin-bottom: 16px;
+    }
+
+    .cta-desc {
+      font-size: 18px;
+      color: var(--muted);
+      margin-bottom: 40px;
+      line-height: 1.7;
+    }
+
+    .trial-note {
+      font-size: 13px;
+      color: var(--subtle);
+      margin-top: 20px;
+    }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 40px 24px;
+      text-align: center;
+      color: var(--subtle);
+      font-size: 13px;
+    }
+
+    footer a {
+      color: var(--muted);
+      text-decoration: none;
+    }
+
+    footer a:hover { color: var(--text); }
+
+    .footer-links {
+      display: flex;
+      gap: 24px;
+      justify-content: center;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    /* DIVIDER */
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 0;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      .missus-section {
+        grid-template-columns: 1fr;
+        padding: 32px 24px;
+      }
+
+      .nav-links .btn-outline { display: none; }
+
+      .quote-section { padding: 32px 24px; }
+
+      .stat-row { gap: 28px; }
+    }
+
+    /* SCROLL ANIMATIONS */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a href="#" class="nav-logo">yeah copy 🤙</a>
+    <div class="nav-links">
+      <a href="https://apps.apple.com/au/app/yeah-copy/id6760800680" class="btn btn-primary" target="_blank">Download</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="road-line"></div>
+    <p class="hero-eyebrow">Australian Truck Driver App</p>
+    <h1 class="hero-logo">yeah copy 🤙</h1>
+    <p class="hero-sub">built for the roads you drive</p>
+    <p class="hero-desc">
+      Live bridge status. Road alerts. Servo finder. AI assistant.<br/>
+      <strong>Built by a truckie. For truckies.</strong>
+    </p>
+    <div class="download-buttons">
+      <a href="https://apps.apple.com/au/app/yeah-copy/id6760800680" class="download-btn" target="_blank">
+        <span class="icon">🍎</span>
+        <span class="label">
+          <small>Download on the</small>
+          App Store
+        </span>
+      </a>
+      <a href="https://play.google.com/store/apps/details?id=com.shammallama.yeahcopy" class="download-btn" target="_blank">
+        <span class="icon">🤖</span>
+        <span class="label">
+          <small>Get it on</small>
+          Google Play
+        </span>
+      </a>
+    </div>
+    <div class="stat-row">
+      <div class="stat">
+        <div class="stat-num">1,000+</div>
+        <div class="stat-label">Active Subscribers</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">7</div>
+        <div class="stat-label">States Covered</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">Free</div>
+        <div class="stat-label">7-Day Trial</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- BRIDGE STATUS DEMO -->
+  <section class="fade-in">
+    <p class="section-label">Live Bridge Status</p>
+    <h2 class="section-title">Know before you roll.</h2>
+    <p class="section-desc">Real-time weighbridge status from drivers on the road right now. Hot, Working or Cold — no more guessing.</p>
+
+    <div class="bridge-demo">
+      <p class="bridge-demo-title">NSW — Newell Highway</p>
+      <div class="bridge-row">
+        <div>
+          <div class="bridge-name">Forbes</div>
+          <div class="bridge-sub">Newell Highway · Updated 12m ago</div>
+        </div>
+        <span class="pill pill-working">⚖️ Working</span>
+      </div>
+      <div class="bridge-row">
+        <div>
+          <div class="bridge-name">Narrabri</div>
+          <div class="bridge-sub">Newell Highway · Updated 2h ago</div>
+        </div>
+        <span class="pill pill-cold">❄️ Cold</span>
+      </div>
+      <div class="bridge-row">
+        <div>
+          <div class="bridge-name">Moree</div>
+          <div class="bridge-sub">Newell Highway · Updated 45m ago</div>
+        </div>
+        <span class="pill pill-hot">🔥 Hot</span>
+      </div>
+      <div class="bridge-row">
+        <div>
+          <div class="bridge-name">West Wyalong</div>
+          <div class="bridge-sub">Newell Highway · Updated 3h ago</div>
+        </div>
+        <span class="pill pill-cold">❄️ Cold</span>
+      </div>
+    </div>
+
+    <div class="feature-grid">
+      <div class="feature-card hot">
+        <span class="feature-emoji">🔥</span>
+        <div class="feature-title">Hot</div>
+        <div class="feature-desc">Police AND NHVR on site. Full show. Allow extra time and make sure everything is in order.</div>
+      </div>
+      <div class="feature-card warm">
+        <span class="feature-emoji">⚖️</span>
+        <div class="feature-title">Working</div>
+        <div class="feature-desc">NHVR present and weighing trucks. Routine check, no police on site.</div>
+      </div>
+      <div class="feature-card cool">
+        <span class="feature-emoji">❄️</span>
+        <div class="feature-title">Cold</div>
+        <div class="feature-desc">Shut and not operating. All good to pass through.</div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- FEATURES -->
+  <section class="fade-in">
+    <p class="section-label">Everything you need</p>
+    <h2 class="section-title">More than just bridges.</h2>
+    <p class="section-desc">Yeah Copy is a complete toolkit for Australian truck drivers. Everything in one place, built for the road.</p>
+
+    <div class="feature-grid">
+      <div class="feature-card">
+        <span class="feature-emoji">🚨</span>
+        <div class="feature-title">Road Alerts</div>
+        <div class="feature-desc">Police, NHVR, accidents, road closures, stock on road. Posted by drivers, for drivers. In real time.</div>
+      </div>
+      <div class="feature-card">
+        <span class="feature-emoji">⛽</span>
+        <div class="feature-title">Servo Finder</div>
+        <div class="feature-desc">Showers, high flow diesel, road train suitable parking and driver reviews. Find a good stop before you need one.</div>
+      </div>
+      <div class="feature-card">
+        <span class="feature-emoji">🗺️</span>
+        <div class="feature-title">Route Planner</div>
+        <div class="feature-desc">Find bridges and cameras along your run before you leave the yard. Plan ahead, not on the fly.</div>
+      </div>
+      <div class="feature-card">
+        <span class="feature-emoji">📸</span>
+        <div class="feature-title">Spotto</div>
+        <div class="feature-desc">A community of truck photographers around the country. See your truck pop up in the feed.</div>
+      </div>
+      <div class="feature-card">
+        <span class="feature-emoji">🎙️</span>
+        <div class="feature-title">Podcasts</div>
+        <div class="feature-desc">Truckin with Podge and Proper True Yarn from Knuckles right there in the app. Good listening for the long haul.</div>
+      </div>
+      <div class="feature-card gold">
+        <span class="feature-emoji">🆕</span>
+        <div class="feature-title">New Driver Hub</div>
+        <div class="feature-desc">Everything a new driver needs to know. No gatekeeping, no judgment. Just the right information.</div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- THE MISSUS -->
+  <section class="fade-in">
+    <p class="section-label">AI Assistant</p>
+    <h2 class="section-title">Meet The Missus.</h2>
+    <p class="section-desc">An AI assistant built specifically for Australian truck drivers. She knows the routes, the regs and the roads. And she's got opinions.</p>
+
+    <div class="missus-section">
+      <div>
+        <h3 style="font-size: 22px; font-weight: 800; margin-bottom: 16px;">Not your average chatbot.</h3>
+        <p style="color: var(--muted); line-height: 1.7; margin-bottom: 24px;">The Missus knows Australian trucking inside out. Ask her about the best route from Shepparton to Toowoomba, what Forbes weighbridge is doing, fatigue laws, mass limits, HVNL reform — she's got it.</p>
+        <p style="color: var(--muted); line-height: 1.7;">She'll also tell you where to get a good hat, give you a serve if you drive a 909, and share a road story or two if you ask nicely. 😂</p>
+      </div>
+      <div class="missus-chat">
+        <p class="chat-missus-name">👩 The Missus</p>
+        <div class="chat-bubble chat-missus">Right, Shepparton to Toowoomba. That's the Newell Highway — roughly 1,800km. Here's what's showing on your run...</div>
+        <div class="chat-bubble chat-user">Is Forbes open?</div>
+        <div class="chat-bubble chat-missus">Forbes is showing ⚖️ Working right now — NHVR present and weighing trucks. No police showing. Make sure your paperwork is in order. 🤙</div>
+        <div class="chat-bubble chat-user">Any good servos on the Newell?</div>
+        <div class="chat-bubble chat-missus">Jerilderie BP is unreal — great food, showers, good parking. Goondiwindi BP same deal at the other end. Worth the stop. 🤙</div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- QUOTE -->
+  <section class="fade-in" style="padding: 80px 24px; max-width: 900px; margin: 0 auto;">
+    <div class="quote-section">
+      <p class="quote-text">"Built in 2026 because truck drivers deserve better tools than a Facebook group."</p>
+      <p class="quote-attr"><strong>Danny Wynn</strong> — Founder, Yeah Copy. K220 driver, Kelly Transport. 10 years on the road.</p>
+    </div>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- CTA -->
+  <div class="cta-section fade-in">
+    <p class="cta-logo">yeah copy 🤙</p>
+    <p class="cta-desc">No ads. No algorithm. No gatekeeping. Just fast, accurate information from real drivers on the road right now.</p>
+    <div class="download-buttons">
+      <a href="https://apps.apple.com/au/app/yeah-copy/id6760800680" class="download-btn" target="_blank">
+        <span class="icon">🍎</span>
+        <span class="label">
+          <small>Download on the</small>
+          App Store
+        </span>
+      </a>
+      <a href="https://play.google.com/store/apps/details?id=com.shammallama.yeahcopy" class="download-btn" target="_blank">
+        <span class="icon">🤖</span>
+        <span class="label">
+          <small>Get it on</small>
+          Google Play
+        </span>
+      </a>
+    </div>
+    <p class="trial-note">First 7 days free. $4.99/month after that. Cancel anytime.</p>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-links">
+      <a href="https://www.facebook.com/profile.php?id=61591930979398" target="_blank">Facebook</a>
+      <a href="mailto:danny@yeahcopy.net">danny@yeahcopy.net</a>
+      <a href="https://apps.apple.com/au/app/yeah-copy/id6760800680" target="_blank">App Store</a>
+      <a href="https://play.google.com/store/apps/details?id=com.shammallama.yeahcopy" target="_blank">Google Play</a>
+    </div>
+    <p>© 2026 Yeah Copy. Built for the roads you drive. 🤙</p>
+  </footer>
+
+  <script>
+    // Fade in on scroll
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible')
+        }
+      })
+    }, { threshold: 0.1 })
+
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el))
+  </script>
+
+</body>
+</html>
